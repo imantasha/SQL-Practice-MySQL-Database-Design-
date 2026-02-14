@@ -1,0 +1,226 @@
+# SQL Practice -- MySQL & Database Design 
+
+This repository contains all SQL queries I practiced while completing
+the\
+**"SQL for Beginners: Learn SQL using MySQL & Database Design"** course
+by Scaler Topics.
+
+The queries cover SQL fundamentals, pattern matching, joins, subqueries,
+grouping, and real-world scenarios using the ClassicModels sample
+database.
+
+------------------------------------------------------------------------
+
+## Topics Covered
+
+### 1. Basic SELECT & Filtering
+
+``` sql
+SELECT * FROM classicmodels.employees;
+SELECT * FROM employees WHERE officeCode = 1 ORDER BY firstName;
+SELECT * FROM employees WHERE officeCode IN (1,2,4);
+SELECT * FROM employees WHERE officeCode NOT IN (1,2,4);
+```
+
+### 2. BETWEEN Operator
+
+``` sql
+SELECT * FROM payments 
+WHERE paymentDate BETWEEN '2003-06-05' AND '2004-06-05';
+```
+
+### 3. LIKE Operator (Pattern Matching)
+
+``` sql
+SELECT * FROM employees WHERE jobTitle LIKE "%SALE%";
+SELECT * FROM employees WHERE firstName LIKE "%y";
+```
+
+### 4. REGEXP (Regular Expressions)
+
+``` sql
+SELECT * FROM employees WHERE jobTitle REGEXP "^SALE";
+SELECT * FROM employees WHERE jobTitle REGEXP "rep$";
+SELECT * FROM employees WHERE firstName REGEXP "^a|^b";
+SELECT * FROM employees WHERE firstName REGEXP "^[abcdf]";
+```
+
+### 5. Joins (Inner, Outer, Self, Explicit & Implicit)
+
+**Inner Join**
+
+``` sql
+SELECT payments.customerNumber, customerName, paymentDate, amount 
+FROM payments 
+JOIN customers ON payments.customerNumber = customers.customerNumber;
+```
+
+**Multiple Joins**
+
+``` sql
+SELECT orderNumber, status, o.customerNumber, c.customerName,
+       e.firstName AS "SALES PERSON NAME", e.jobTitle
+FROM orders o
+JOIN customers c ON o.customerNumber = c.customerNumber
+JOIN employees e ON c.salesRepEmployeeNumber = e.employeeNumber;
+```
+
+**Self Join**
+
+``` sql
+SELECT emp.employeeNumber, emp.firstName, emp.jobTitle,
+       mgr.firstName AS "Manager Name", mgr.jobTitle AS "Manager Title"
+FROM employees emp  
+JOIN employees mgr;
+```
+
+**Explicit Join Syntax**
+
+``` sql
+SELECT p.customerNumber, paymentDate, amount, customerName 
+FROM payments p 
+INNER JOIN customers c ON p.customerNumber = c.customerNumber;
+```
+
+**Implicit Join Syntax**
+
+``` sql
+SELECT p.customerNumber, paymentDate, amount, customerName 
+FROM payments p, customers c 
+WHERE p.customerNumber = c.customerNumber;
+```
+
+### 6. Outer Join (LEFT JOIN)
+
+``` sql
+SELECT c.customerNumber, customerName, o.orderNumber 
+FROM customers c 
+LEFT JOIN orders o ON c.customerNumber = o.customerNumber;
+```
+
+### 7. USING Keyword
+
+``` sql
+SELECT c.customerNumber, customerName, o.orderNumber 
+FROM customers c 
+JOIN orders o USING (customerNumber);
+```
+
+### 8. GROUP BY & Aggregate Functions
+
+``` sql
+SELECT productLine, COUNT(*) AS productCount 
+FROM products 
+GROUP BY productLine;
+```
+
+**Employees per office**
+
+``` sql
+SELECT officeCode, city, state, COUNT(employeeNumber) AS employeeCnt 
+FROM employees 
+JOIN offices USING (officeCode)
+GROUP BY officeCode;
+```
+
+### 9. HAVING Clause
+
+``` sql
+SELECT officeCode, city, state, COUNT(employeeNumber) AS employeeCnt 
+FROM employees 
+JOIN offices USING (officeCode)
+GROUP BY officeCode 
+HAVING employeeCnt > 4;
+```
+
+**Countries with more than 20 orders**
+
+``` sql
+SELECT country, COUNT(*) AS totalOrders
+FROM orders 
+JOIN customers USING(customerNumber)
+GROUP BY country
+HAVING totalOrders > 20;
+```
+
+### 10. Subqueries
+
+**Products with the same product line**
+
+``` sql
+SELECT productName 
+FROM products 
+WHERE productLine = (
+    SELECT productLine 
+    FROM products 
+    WHERE productName = "1917 Grand Touring Sedan"
+);
+```
+
+**Cars costlier than another product**
+
+``` sql
+SELECT * 
+FROM products  
+WHERE productLine REGEXP "cars"
+AND MSRP > (
+    SELECT MSRP 
+    FROM products 
+    WHERE productName = "1936 Mercedes-Benz 500K Special Roadster"
+);
+```
+
+**Customers who never placed orders**
+
+``` sql
+SELECT customerNumber 
+FROM customers 
+WHERE customerNumber NOT IN (
+    SELECT DISTINCT customerNumber FROM orders
+);
+```
+
+**Same using LEFT JOIN**
+
+``` sql
+SELECT * 
+FROM customers 
+LEFT JOIN orders USING (customerNumber) 
+WHERE orderNumber IS NULL;
+```
+
+------------------------------------------------------------------------
+
+##  Tools Used
+
+-   MySQL\
+-   MySQL Workbench\
+-   ClassicModels Sample Database
+
+------------------------------------------------------------------------
+
+##  Database Used
+
+All queries in this repository are based on the **ClassicModels MySQL
+sample database**.
+
+Download here:\
+https://www.mysqltutorial.org/mysql-sample-database.aspx
+
+------------------------------------------------------------------------
+
+##  How to Import in MySQL Workbench
+
+1.  Open MySQL Workbench\
+2.  Go to **Server \> Data Import**\
+3.  Select the downloaded `classicmodels.sql` file\
+4.  Click **Start Import**\
+5.  Refresh schemas
+
+------------------------------------------------------------------------
+
+##  Purpose of This Repo
+
+This repository showcases my SQL learning journey, hands-on query
+practice, and understanding of core database concepts frequently used in
+real-world applications and interviews.
